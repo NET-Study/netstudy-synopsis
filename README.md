@@ -4,7 +4,7 @@ The four Gospels side by side. Not a harmony that melts the accounts into one
 narrative, but a synopsis: one pericope at a time, each Evangelist in his own
 column, in his own order.
 
-A Tauri 2 app for macOS, built to sit beside NET Study and NET Study Sermons.
+A Tauri 2 app with releases for macOS and Windows, built to sit beside NET Study and NET Study Sermons.
 
 ## What it does
 

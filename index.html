@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-scale="0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NET Study Synopsis</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23141217'/%3E%3Cpath d='M4.5 4.2v15.6M9.5 4.2v15.6M14.5 4.2v15.6M19.5 4.2v15.6' stroke='%23e6be49' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside id="sidebar">
+        <div class="traffic-pad" data-tauri-drag-region></div>
+        <div class="brand" data-tauri-drag-region>
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M4.5 4.2v15.6M9.5 4.2v15.6M14.5 4.2v15.6M19.5 4.2v15.6" />
+              <path d="M4.5 8.4h5M9.5 12.6h5M14.5 7.2h5" opacity=".55" />
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">NET Study</span>
+            <span class="brand-sub">Synopsis</span>
+          </div>
+        </div>
+
+        <label class="search-wrap" for="search">
+          <svg class="search-glyph" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7" /><path d="m20 20-3.6-3.6" />
+          </svg>
+          <input id="search" type="text" placeholder="Search a passage or event" spellcheck="false" autocomplete="off" />
+          <kbd id="search-hint">⌘K</kbd>
+        </label>
+
+        <nav id="outline" class="outline" aria-label="Synopsis outline"></nav>
+
+        <div class="sidebar-foot">
+          <span id="outline-count" class="outline-count"></span>
+          <button id="about-link" class="link-btn" type="button">About</button>
+        </div>
+      </aside>
+
+      <div id="main-col">
+        <header id="topbar" data-tauri-drag-region>
+          <div id="crumbs" class="crumbs"></div>
+          <div class="topbar-spacer" data-tauri-drag-region></div>
+          <div id="gospel-toggles" class="gospel-toggles" role="group" aria-label="Gospels shown"></div>
+          <div class="toolbar">
+            <button id="fill-btn" class="icon-btn" type="button" title="Fill all four columns" aria-pressed="false">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                <rect x="3.5" y="4.5" width="4" height="15" rx="1" /><rect x="10" y="4.5" width="4" height="15" rx="1" /><rect x="16.5" y="4.5" width="4" height="15" rx="1" />
+              </svg>
+            </button>
+            <button id="type-btn" class="icon-btn type-btn" type="button" title="Text size">Aa</button>
+            <button id="theme-btn" class="icon-btn" type="button" title="Appearance">◐</button>
+          </div>
+        </header>
+
+        <main id="content" tabindex="-1"></main>
+
+        <footer id="statusbar">
+          <span id="status-left"></span>
+          <button id="attribution" class="link-btn" type="button">NET Bible® text</button>
+        </footer>
+      </div>
+    </div>
+
+    <div id="about" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="about-title">
+      <div class="modal-card">
+        <button id="about-close" class="icon-btn modal-close" type="button" title="Close">✕</button>
+        <div class="modal-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+            <path d="M4.5 4.2v15.6M9.5 4.2v15.6M14.5 4.2v15.6M19.5 4.2v15.6" />
+            <path d="M4.5 8.4h5M9.5 12.6h5M14.5 7.2h5" opacity=".55" />
+          </svg>
+        </div>
+        <h2 id="about-title">NET Study Synopsis</h2>
+        <p class="modal-lede">The four Gospels, side by side. Not a harmony that blends them into one voice, but a synopsis that lets each Evangelist speak in his own column, in his own order.</p>
+
+        <h3>How to read it</h3>
+        <ul>
+          <li>Each row is one pericope. Columns are whole passages, not spliced verses.</li>
+          <li>Hover a verse to light up its echoes in the other Gospels. Click to pin the comparison.</li>
+          <li>Toggle a Gospel off to widen the others. <em>Fill all four</em> keeps empty columns visible so you can see who is silent.</li>
+        </ul>
+
+        <h3>Keys</h3>
+        <dl class="keys">
+          <div><dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous or next pericope</dd></div>
+          <div><dt><kbd>⌘</kbd><kbd>K</kbd></dt><dd>Search the outline</dd></div>
+          <div><dt><kbd>1</kbd>–<kbd>4</kbd></dt><dd>Show or hide a Gospel</dd></div>
+          <div><dt><kbd>⌘</kbd><kbd>+</kbd> / <kbd>⌘</kbd><kbd>−</kbd></dt><dd>Text size</dd></div>
+        </dl>
+
+        <h3>Text</h3>
+        <p class="fine">Scripture quotations are from the NET Bible®, copyright ©1996–2017 by Biblical Studies Press, L.L.C., <span class="mono">netbible.com</span>. All rights reserved. Quoted by permission. Passage text is fetched from the NET Bible API at <span class="mono">labs.bible.org</span> and cached on this Mac for offline reading.</p>
+        <p class="fine">The outline follows the standard pericope sequence of a Gospel synopsis (after Aland's <em>Synopsis Quattuor Evangeliorum</em>), grouped into eight readable parts. Verse alignment is by passage and by shared wording, not by a critical edition's exact columns.</p>
+        <p class="fine">Made to sit beside NET Study and NET Study Sermons.</p>
+        <p class="version" id="version-line">Version 1.0.0</p>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

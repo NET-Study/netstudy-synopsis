@@ -29,7 +29,7 @@ A Tauri 2 app with releases for macOS and Windows, built to sit beside NET Study
 
 Scripture quotations are from the NET Bible®, copyright ©1996–2017 by Biblical
 Studies Press, L.L.C., [netbible.com](https://netbible.com). All rights reserved.
-Quoted by permission.
+Text is free for non-commercial use.
 
 Passage text is fetched through `labs.bible.org/api` by the Rust side and stored
 in the app data directory under `passages/`. One request per passage; the cache is

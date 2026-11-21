@@ -6,6 +6,8 @@ column, in his own order.
 
 A Tauri 2 app with releases for macOS and Windows, built to sit beside NET Study and NET Study Sermons.
 
+Site: <https://net-study.github.io/netstudy-synopsis/>
+
 ## What it does
 
 - **253 pericopes in eight parts**, from the Prologue to the Ascension, following

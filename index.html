@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark" data-scale="0">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>NET Study Synopsis</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23141217'/%3E%3Cpath d='M4.5 4.2v15.6M9.5 4.2v15.6M14.5 4.2v15.6M19.5 4.2v15.6' stroke='%23e6be49' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="/src/styles.css" />
@@ -42,6 +42,11 @@
 
       <div id="main-col">
         <header id="topbar" data-tauri-drag-region>
+          <button id="menu-btn" class="icon-btn menu-btn" type="button" aria-label="Open the outline">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
           <div id="crumbs" class="crumbs"></div>
           <div class="topbar-spacer" data-tauri-drag-region></div>
           <div id="gospel-toggles" class="gospel-toggles" role="group" aria-label="Gospels shown"></div>
@@ -65,6 +70,9 @@
       </div>
     </div>
 
+    <div id="scrim" class="scrim hidden" aria-hidden="true"></div>
+    <div id="parallels" class="parallels hidden" role="region" aria-label="Parallel verses"></div>
+
     <div id="about" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="about-title">
       <div class="modal-card">
         <button id="about-close" class="icon-btn modal-close" type="button" title="Close">✕</button>
@@ -75,25 +83,38 @@
           </svg>
         </div>
         <h2 id="about-title">NET Study Synopsis</h2>
-        <p class="modal-lede">The four Gospels, side by side. Not a harmony that blends them into one voice, but a synopsis that lets each Evangelist speak in his own column, in his own order.</p>
+        <p class="modal-lede only-wide">The four Gospels, side by side. Not a harmony that blends them into one voice, but a synopsis that lets each Evangelist speak in his own column, in his own order.</p>
+        <p class="modal-lede only-phone">The four Gospels, one at a time. Not a harmony that blends them into one voice, but a synopsis that lets each Evangelist speak in his own order.</p>
 
         <h3>How to read it</h3>
-        <ul>
+        <ul class="only-wide">
           <li>Each row is one pericope. Columns are whole passages, not spliced verses.</li>
           <li>Hover a verse to light up its echoes in the other Gospels. Click to pin the comparison.</li>
           <li>Toggle a Gospel off to widen the others. <em>Fill all four</em> keeps empty columns visible so you can see who is silent.</li>
         </ul>
+        <ul class="only-phone">
+          <li>Each screen is one pericope, one Gospel at a time. Swipe sideways to move between Gospels, or tap the tabs above the text.</li>
+          <li>Tap a verse to pin it and open a sheet of its closest wording in the other Gospels. Tap a parallel to jump to it.</li>
+          <li>The ☰ button opens the outline; the arrows beside the title step through pericopes.</li>
+        </ul>
 
-        <h3>Keys</h3>
-        <dl class="keys">
+        <h3 class="only-wide">Keys</h3>
+        <dl class="keys only-wide">
           <div><dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous or next pericope</dd></div>
           <div><dt><kbd>⌘</kbd><kbd>K</kbd></dt><dd>Search the outline</dd></div>
           <div><dt><kbd>1</kbd>–<kbd>4</kbd></dt><dd>Show or hide a Gospel</dd></div>
           <div><dt><kbd>⌘</kbd><kbd>+</kbd> / <kbd>⌘</kbd><kbd>−</kbd></dt><dd>Text size</dd></div>
         </dl>
 
+        <h3 class="only-phone">Gestures</h3>
+        <dl class="keys only-phone">
+          <div><dt>Swipe</dt><dd>Previous or next Gospel</dd></div>
+          <div><dt>Tap a verse</dt><dd>Pin it and show close parallels</dd></div>
+          <div><dt>☰</dt><dd>Open the outline</dd></div>
+        </dl>
+
         <h3>Text</h3>
-        <p class="fine">Scripture quotations are from the NET Bible®, copyright ©1996–2017 by Biblical Studies Press, L.L.C., <span class="mono">netbible.com</span>. All rights reserved. Quoted by permission. Passage text is fetched from the NET Bible API at <span class="mono">labs.bible.org</span> and cached on this Mac for offline reading.</p>
+        <p class="fine">Scripture quotations are from the NET Bible®, copyright ©1996–2017 by Biblical Studies Press, L.L.C., <span class="mono">netbible.com</span>. All rights reserved. Quoted by permission. Passage text is fetched from the NET Bible API at <span class="mono">labs.bible.org</span> and cached on this device for offline reading.</p>
         <p class="fine">The outline follows the standard pericope sequence of a Gospel synopsis (after Aland's <em>Synopsis Quattuor Evangeliorum</em>), grouped into eight readable parts. Verse alignment is by passage and by shared wording, not by a critical edition's exact columns.</p>
         <p class="fine">Made to sit beside NET Study and NET Study Sermons.</p>
         <p class="version" id="version-line">Version 1.0.0</p>

@@ -46,11 +46,17 @@ const about = $("#about");
 const aboutLink = $<HTMLButtonElement>("#about-link");
 const aboutClose = $<HTMLButtonElement>("#about-close");
 const attribution = $<HTMLButtonElement>("#attribution");
+const menuBtn = $<HTMLButtonElement>("#menu-btn");
+const scrim = $("#scrim");
+const parallels = $("#parallels");
+
+const phone = window.matchMedia("(max-width: 760px)");
+const isPhone = () => phone.matches;
 
 // ---- constants -------------------------------------------------------------
 
 const STORAGE = "netstudy-synopsis/v1";
-const VERSION = "1.0.0";
+const VERSION = "1.1.2";
 
 const ORDINAL = new Map(SECTIONS.map((s, i) => [s.id, i + 1]));
 const PART_TITLE = new Map(PARTS.map((p) => [p.id, p.title]));
@@ -309,7 +315,6 @@ function sectionHTML(section: Section): string {
 
   const selected = GOSPELS.filter((g) => prefs.visible[g.id] && (prefs.fill || section.passages[g.id]));
   const columns = selected.map((g) => columnHTML(section, g));
-
   const chips = GOSPELS.filter((g) => section.passages[g.id])
     .map(
       (g) =>
@@ -330,6 +335,16 @@ function sectionHTML(section: Section): string {
 
   const note = section.note ? `<p class="section-note">${escapeHTML(section.note)}</p>` : "";
 
+  const tabs =
+    selected.length > 1
+      ? `<div class="mtabs" role="tablist" aria-label="Gospel">${selected
+          .map(
+            (g, i) =>
+              `<button class="mtab" type="button" role="tab" data-goto="${g.id}" aria-selected="${i === 0}" style="--hue:${g.hue}"><span class="gdot"></span>${g.abbr}</button>`,
+          )
+          .join("")}</div>`
+      : "";
+
   return `<header class="section-head">
     <div class="section-eyebrow">
       <span class="ord">Section ${ordinal}</span><span class="sep">·</span><span>${escapeHTML(part)}</span>
@@ -345,6 +360,7 @@ function sectionHTML(section: Section): string {
     <div class="ref-row">${chips}</div>
     ${note}
   </header>
+  ${tabs}
   ${body}`;
 }
 
@@ -363,8 +379,128 @@ function renderSection(section: Section, resetScroll: boolean) {
 
   markActive();
   pinned = null;
+  hideParallels();
+  closeDrawer();
+  wireTabs();
   hydrate(section);
   updateStatus(section);
+}
+
+// ---- phone: gospel tabs, drawer, parallel sheet ----------------------------
+
+function openDrawer() {
+  document.body.classList.add("drawer-open");
+  scrim.classList.remove("hidden");
+}
+
+function closeDrawer() {
+  document.body.classList.remove("drawer-open");
+  scrim.classList.add("hidden");
+}
+
+function hideParallels() {
+  parallels.classList.add("hidden");
+  parallels.innerHTML = "";
+}
+
+function columnOf(id: string): HTMLElement | null {
+  return content.querySelector<HTMLElement>(`.column[data-gospel="${id}"]`);
+}
+
+function scrollToGospel(id: string, behavior: ScrollBehavior = "smooth") {
+  const strip = content.querySelector<HTMLElement>(".synopsis");
+  const column = columnOf(id);
+  if (!strip || !column) return;
+  const first = strip.querySelector<HTMLElement>(".column");
+  strip.scrollTo({ left: column.offsetLeft - (first?.offsetLeft ?? 0), behavior });
+}
+
+function wireTabs() {
+  const strip = content.querySelector<HTMLElement>(".synopsis");
+  if (!strip) return;
+  const columns = Array.from(strip.querySelectorAll<HTMLElement>(".column"));
+  const tabs = Array.from(content.querySelectorAll<HTMLElement>(".mtab"));
+  if (columns.length === 0) return;
+  const base = columns[0].offsetLeft;
+
+  const update = () => {
+    const x = strip.scrollLeft;
+    let best = 0;
+    let distance = Number.POSITIVE_INFINITY;
+    columns.forEach((column, index) => {
+      const d = Math.abs(column.offsetLeft - base - x);
+      if (d < distance) {
+        distance = d;
+        best = index;
+      }
+    });
+    tabs.forEach((tab, index) => tab.setAttribute("aria-selected", String(index === best)));
+  };
+
+  strip.addEventListener("scroll", () => window.requestAnimationFrame(update), { passive: true });
+  update();
+}
+
+interface ParallelHit {
+  element: HTMLElement;
+  gospel: Gospel;
+  score: number;
+}
+
+function parallelHits(source: HTMLElement): ParallelHit[] {
+  const a = tokensFor(source);
+  const from = source.dataset.gospel;
+  const hits: ParallelHit[] = [];
+  if (a.size === 0) return hits;
+
+  for (const element of content.querySelectorAll<HTMLElement>(".verse")) {
+    if (element === source || element.dataset.gospel === from) continue;
+    const b = tokensFor(element);
+    if (b.size === 0) continue;
+    let shared = 0;
+    for (const word of a) if (b.has(word)) shared += 1;
+    const dice = (2 * shared) / (a.size + b.size);
+    if (dice >= 0.3) {
+      hits.push({ element, gospel: GOSPEL_BY_ID[element.dataset.gospel as GospelId], score: dice });
+    }
+  }
+
+  hits.sort((left, right) => right.score - left.score);
+  return hits.slice(0, 3);
+}
+
+function showParallels(source: HTMLElement) {
+  if (!isPhone()) return;
+  const hits = parallelHits(source);
+  const ref = source.dataset.ref ?? "";
+  const label = hits.length === 1 ? "1 close parallel" : `${hits.length} close parallels`;
+
+  const rows = hits.length
+    ? hits
+        .map((hit) => {
+          const text = hit.element.querySelector(".vtext")?.textContent?.trim() ?? "";
+          const snippet = text.length > 98 ? `${text.slice(0, 98).trimEnd()}…` : text;
+          return `<button class="par-hit" type="button" data-par-gospel="${hit.gospel.id}" data-par-ref="${escapeHTML(hit.element.dataset.ref ?? "")}" style="--hue:${hit.gospel.hue}">
+            <span class="gdot"></span>
+            <span class="par-main">
+              <span class="par-ref">${escapeHTML(hit.element.dataset.ref ?? "")}</span>
+              <span class="par-snip">${escapeHTML(snippet)}</span>
+            </span>
+          </button>`;
+        })
+        .join("")
+    : `<p class="par-none">No close wording in the other Gospels for this verse.</p>`;
+
+  parallels.innerHTML = `<div class="par-grab" aria-hidden="true"></div>
+    <div class="par-head">
+      <div>
+        <span class="par-eyebrow">Pinned · ${escapeHTML(ref)}</span>
+        <span class="par-sub">${hits.length ? label : "No parallel"}</span>
+      </div>
+      <button class="icon-btn" type="button" data-par-close aria-label="Close">✕</button>
+    </div>
+    ${rows}`;
+  parallels.classList.remove("hidden");
 }
 
 async function hydrate(section: Section) {
@@ -555,7 +691,19 @@ content.addEventListener("click", (event) => {
 
   const jump = target.closest<HTMLElement>("[data-jump]");
   if (jump) {
-    const column = content.querySelector<HTMLElement>(`.column[data-gospel="${jump.dataset.jump}"]`);
+    const id = jump.dataset.jump ?? "";
+    if (isPhone()) {
+      scrollToGospel(id);
+      const column = columnOf(id);
+      if (column) {
+        column.animate(
+          [{ boxShadow: "0 0 0 0 rgba(230,190,73,0)" }, { boxShadow: "0 0 0 3px rgba(230,190,73,0.38)" }, { boxShadow: "0 0 0 0 rgba(230,190,73,0)" }],
+          { duration: 900, easing: "ease-out" },
+        );
+      }
+      return;
+    }
+    const column = content.querySelector<HTMLElement>(`.column[data-gospel="${id}"]`);
     if (column) {
       content.scrollTo({ left: 0, top: Math.max(0, column.offsetTop - 8), behavior: "smooth" });
       column.animate(
@@ -563,6 +711,12 @@ content.addEventListener("click", (event) => {
         { duration: 900, easing: "ease-out" },
       );
     }
+    return;
+  }
+
+  const goto = target.closest<HTMLElement>("[data-goto]");
+  if (goto) {
+    scrollToGospel(goto.dataset.goto ?? "");
     return;
   }
 
@@ -579,20 +733,24 @@ content.addEventListener("click", (event) => {
     if (pinned === verse) {
       pinned = null;
       clearHighlights();
+      hideParallels();
     } else {
       pinned = verse;
       highlightFrom(verse);
+      showParallels(verse);
     }
   }
 });
 
 content.addEventListener("pointerover", (event) => {
+  if (isPhone()) return;
   const verse = (event.target as HTMLElement).closest<HTMLElement>(".verse");
   if (!verse) return;
   highlightFrom(verse);
 });
 
 content.addEventListener("pointerout", (event) => {
+  if (isPhone()) return;
   const verse = (event.target as HTMLElement).closest<HTMLElement>(".verse");
   if (!verse) return;
   const next = event.relatedTarget as HTMLElement | null;
@@ -666,6 +824,47 @@ about.addEventListener("click", (event) => {
   if (event.target === about) closeAbout();
 });
 
+menuBtn.addEventListener("click", () => {
+  if (document.body.classList.contains("drawer-open")) closeDrawer();
+  else openDrawer();
+});
+
+scrim.addEventListener("click", closeDrawer);
+
+// Tap a parallel in the sheet: swipe to that Gospel and pin the verse there.
+parallels.addEventListener("click", (event) => {
+  const target = event.target as HTMLElement;
+
+  if (target.closest("[data-par-close]")) {
+    hideParallels();
+    return;
+  }
+
+  const hit = target.closest<HTMLElement>(".par-hit");
+  if (!hit) return;
+
+  const gospelId = hit.dataset.parGospel ?? "";
+  const ref = hit.dataset.parRef ?? "";
+  const element = Array.from(content.querySelectorAll<HTMLElement>(".verse")).find(
+    (verse) => verse.dataset.gospel === gospelId && verse.dataset.ref === ref,
+  );
+  if (!element) return;
+
+  pinned = element;
+  highlightFrom(element);
+  scrollToGospel(gospelId);
+  showParallels(element);
+  element.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+});
+
+// Leaving the phone layout should never leave the drawer or sheet stranded.
+phone.addEventListener("change", () => {
+  if (!isPhone()) {
+    closeDrawer();
+    hideParallels();
+  }
+});
+
 document.addEventListener("keydown", (event) => {
   const inField = document.activeElement instanceof HTMLInputElement;
   const modalOpen = !about.classList.contains("hidden");
@@ -679,6 +878,10 @@ document.addEventListener("keydown", (event) => {
   }
 
   if (event.key === "Escape") {
+    if (document.body.classList.contains("drawer-open")) {
+      closeDrawer();
+      return;
+    }
     if (modalOpen) {
       closeAbout();
       return;
@@ -693,6 +896,7 @@ document.addEventListener("keydown", (event) => {
     if (pinned) {
       pinned = null;
       clearHighlights();
+      hideParallels();
       return;
     }
     return;

@@ -32,17 +32,24 @@ jobs:
       - name: Build NSIS installer
         run: npx tauri build --bundles nsis
 
+      - name: Read the app version
+        id: ver
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          "version=$version" >> $env:GITHUB_OUTPUT
+
       - name: Stage the installer under a clean name
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force dist-release | Out-Null
           $exe = Get-ChildItem "src-tauri/target/release/bundle/nsis/*-setup.exe" | Select-Object -First 1
-          Copy-Item $exe.FullName "dist-release/NET-Study-Synopsis-1.0.0-x64-setup.exe"
+          Copy-Item $exe.FullName "dist-release/NET-Study-Synopsis-${{ steps.ver.outputs.version }}-x64-setup.exe"
 
       - name: Attach installer to the release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: NET Study Synopsis 1.0.0
+          tag_name: ${{ github.ref_name }}
+          name: NET Study Synopsis ${{ steps.ver.outputs.version }}
           fail_on_unmatched_files: true
-          files: dist-release/NET-Study-Synopsis-1.0.0-x64-setup.exe
+          files: dist-release/NET-Study-Synopsis-*-x64-setup.exe

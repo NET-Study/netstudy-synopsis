@@ -87,7 +87,7 @@ export const SECTIONS: Section[] = [
   { id: "john-repentance", title: "John's Preaching of Repentance", part: "preparation", passages: { matthew: "3:7-10", luke: "3:7-9" } },
   { id: "john-questioners", title: "John Answers the Questioners", part: "preparation", passages: { luke: "3:10-14" } },
   { id: "john-messianic", title: "John's Messianic Preaching", part: "preparation", passages: { matthew: "3:11-12", mark: "1:7-8", luke: "3:15-18", john: "1:24-28" } },
-  { id: "john-imprisoned", title: "The Imprisonment of John", part: "preparation", passages: { matthew: "14:3-5", mark: "6:17-18", luke: "3:19-20" } },
+  { id: "john-imprisoned", title: "The Imprisonment of John", part: "preparation", passages: { matthew: "14:3-5", mark: "6:17-20", luke: "3:19-20" } },
   { id: "baptism", title: "The Baptism of Jesus", part: "preparation", passages: { matthew: "3:13-17", mark: "1:9-11", luke: "3:21-22", john: "1:29-34" } },
   { id: "temptation", title: "The Temptation in the Wilderness", part: "preparation", passages: { matthew: "4:1-11", mark: "1:12-13", luke: "4:1-13" } },
 

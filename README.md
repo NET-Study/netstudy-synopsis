@@ -52,6 +52,26 @@ apps. A downloaded copy needs right-click → Open, or:
 xattr -dr com.apple.quarantine "/Applications/NET Study Synopsis.app"
 ```
 
+## Android
+
+On a phone the four columns become one column per screen. The Gospel tabs (or a
+horizontal swipe) move between Matthew, Mark, Luke and John; the outline lives
+in a drawer behind the ☰ button; and tapping a verse pins it and opens a sheet of
+its closest parallels, which jump you to that Gospel at the matching verse.
+
+```sh
+npx tauri android build --apk --target aarch64
+```
+
+Signing is optional and never committed. Set `SYNOPSIS_KEYSTORE`,
+`SYNOPSIS_KEYSTORE_PASSWORD`, `SYNOPSIS_KEY_ALIAS` and `SYNOPSIS_KEY_PASSWORD`
+(or `src-tauri/gen/android/keystore.properties`) to sign the release; without
+them the build still produces an unsigned APK. The signed universal APK lands in
+`src-tauri/gen/android/app/build/outputs/apk/universal/release/`.
+
+`scripts/shot-phone.mjs` runs the phone layout in Chrome at 390×844 and checks
+the tabs, the drawer, the swipe strip and the parallel sheet.
+
 ## Layout
 
 ```
@@ -61,6 +81,8 @@ src/main.ts         outline, columns, search, comparison highlighting
 src/styles.css      plum and gold, serif reading text
 src-tauri/src/lib.rs  NET Bible client, entity/tag cleanup, disk cache
 scripts/smoke.mjs   Puppeteer smoke test with generated passages
+scripts/shot-phone.mjs  phone layout check at 390x844
+scripts/shot-phone.mjs  phone-layout check at 390×844
 ```
 
 ## Credits
